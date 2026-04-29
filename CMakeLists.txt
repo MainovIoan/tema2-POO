@@ -12,4 +12,5 @@ add_executable(${PROJECT_NAME}
     src/Profesor.cpp
     src/Parinte.cpp
     src/Catalog.cpp
+    src/Director.cpp
 )

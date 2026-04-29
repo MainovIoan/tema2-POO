@@ -4,6 +4,7 @@
 #include "Profesor.h"
 #include "Parinte.h"
 #include "Exceptii.h"
+#include "Director.h"
 using namespace std;
 
 int main() {
@@ -31,6 +32,8 @@ int main() {
         par1.adaugaCopil("Ion Popescu");
         catalog.adaugaPersoana(&par1);
 
+        Director d1("Constantin", "Gheorghe", 55, "Informatica", 12);
+        catalog.adaugaPersoana(&d1);
         
     }
     
