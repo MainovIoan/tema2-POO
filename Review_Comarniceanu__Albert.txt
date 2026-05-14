@@ -1,0 +1,110 @@
+Review Comarniceanu Albert Nicolae
+de Mainov Ioan Mihail
+
+
+Tema lui Albert e despre pariuri sportive. Poti adauga meciuri de fotbal
+tenis si baschet pe un bilet si programul calculeaza cat poti castiga
+in functie de cotele meciurilor puse. Are si un sistem de bonus care
+adauga procente in plus la cota daca pui mai multe meciuri pe acelasi
+bilet ceea ce face aplicatia mai interesanta decat o simpla inmultire
+de cote. Tema e bine aleasa pentru ca fiecare sport are
+reguli diferite ceea ce se potriveste bine cu cerintele proiectului.
+
+
+Codul e impartit in fisiere .h si .cpp pentru fiecare clasa ceea ce
+e bine pentru ca e usor de gasit ce cauti si nu e totul inghesuit
+intr un singur fisier. In main e logica principala si testele cu
+diferite bilete. Un lucru bun e ca datele cu meciurile sunt intr un
+fisier separat numit Meciuri_bilet si nu sunt scrise direct in cod.
+Asta inseamna ca daca vrei sa adaugi un meci nou sau sa schimbi
+cotele nu trebuie sa umbli la codul sursa ci doar la fisier.
+
+Clasa de baza e Sport si din ea mostenesc Fotbal Tenis si Baschet.
+Toate trei implementeaza metodele pure virtuale calculeazaCastig si
+clone. Constructorul din Sport e apelat din fiecare derivata prin
+initializer list ceea ce e corect. Fiecare sport calculeaza altfel
+castigul: la fotbal se scade 1% taxa la baschet se da un bonus de 5%
+daca limita de puncte depaseste 200 iar la tenis se da un bonus de 2%
+daca suprafata terenului e iarba. Mi se pare ca asta e bine gandit
+pentru ca fiecare sport chiar are logica lui proprie si nu e doar pus
+acolo sa existe. Ierarhia e proprie nu e mostenita din vreo clasa
+predefinita din STL ceea ce respecta ce scrie in enunt.
+
+
+
+Pentru afisare e folosit pattern ul de interfata non virtuala. Metoda
+afisareEvenimente din clasa Sport apeleaza intern afisareSpecifica care
+e virtuala si privata iar fiecare derivata o suprascrie cu detaliile
+specifice sportului ei. E un mod bun de a face afisarea pentru ca nu
+trebuie sa copiezi aceeasi logica in fiecare clasa derivata. Si
+operatorul << e suprascris si apeleaza acelasi mecanism deci afisarea
+e consistenta in tot proiectul.
+
+Clasa Bilet tine un vector de shared_ptr la Sport si prin acesti
+pointeri sunt apelate metodele virtuale in mod polimorfic. Constructorul
+de copiere si operatorul de atribuire sunt implementate cu copy and swap
+si la copiere fiecare element din bilet e clonat prin clone ca sa nu
+apara probleme cu copierea obiectelor. Swap ul e noexcept. Alegerea de
+a folosi shared_ptr in loc de pointeri raw e buna pentru ca nu mai
+trebuie sa scrii destructor manual si nu exista riscul sa uiti sa
+eliberezi memoria undeva.
+
+
+E si o functie recursiva calculeazaProcentRecursiv care calculeaza
+bonusul pentru biletele cu mai mult de 3 meciuri. Practic pentru
+fiecare meci peste pragul de 3 se adauga 5% la cota finala. Cazul de
+baza e atunci cand numarul de meciuri e 3 sau mai mic si nu se da niciun
+bonus iar pasul recursiv adauga 5% si apeleaza functia pentru un meci
+mai putin. Nu e o recursivitate foarte complicata dar e integrata cu
+sens in tema si functioneaza corect impreuna cu metoda aplicaBonusMultipla
+care verifica si daca cotele sunt suficient de mari inainte sa aplice
+bonusul.
+
+Dynamic cast e folosit in doua locuri in verificaDetaliiFotbal si in
+filtreazaDupaSport. In ambele cazuri din lista de shared_ptr la Sport
+se face dynamic_pointer_cast catre tipul specific ca sa se identifice
+ce fel de obiect e. In filtreazaDupaSport de exemplu daca ceri doar
+meciurile de tenis functia parcurge toata lista si returneaza doar pe
+cele care sunt de tip Tenis clonate prin clone. E folosit cu sens nu
+pus acolo la intamplare.
+
+Constructorul lui Tenis face o validare specifica: daca pronosticul e
+X arunca imediat o exceptie pentru ca la tenis nu exista optiunea de
+egal. Asta e o validare care are sens pentru ca chiar asa e in
+realitate si nu e doar o verificare pusa de forma ca sa existe.
+
+La partea de exceptii baza e EroarePariuri derivata din std::runtime_error
+care la randul ei e derivata din std::exception. Din ea sunt derivate
+doua clase: MizaInvalida pentru situatia in care miza introdusa e
+negativa si CotaInvalida pentru cotele mai mici sau egale cu 1.0.
+Fiecare clasa genereaza un mesaj cu valoarea concreta care a cauzat
+problema ceea ce e util cand vrei sa intelegi ce a mers gresit.
+Exceptiile sunt aruncate in constructori si in functia care citeste
+fisierul si sunt prinse in main cu try catch. Ierarhia e separata de
+ierarhia principala. Singura observatie e ca sunt doar doua clase
+derivate din EroarePariuri iar cerinta zice minim 3 clase distincte
+deci ar fi putut fi adaugata inca o clasa pentru alta categorie de
+eroare cum ar fi eroarea la citirea fisierului.
+
+
+In Sport exista un atribut static nrEvenimenteActive care numara cate
+obiecte Sport sunt in memorie la un moment dat. Se incrementeaza in
+constructor si se decrementeaza in destructor ceea ce e corect. STL ul
+e folosit prin std::vector pentru lista de meciuri din Bilet si pentru
+oferta de meciuri din main. Cuvantul cheie const e pus pe metodele
+care nu modifica starea obiectului cum e calculeazaCastig sau getCotaBaza.
+
+
+Functia incarcaOferta din main citeste fisierul Meciuri_bilet linie cu
+linie si creeaza obiectele Sport corespunzatoare tipului de sport.
+Daca gaseste ceva invalid cum ar fi o cota prea mica sau un pronostic
+nepermis arunca exceptie cu un mesaj clar. Asta e bine pentru ca
+programul nu continua sa ruleze cu date gresite din fisier.
+
+
+
+Per total proiectul e facut bine si respecta cerintele
+din enunt. Ierarhia de clase e corecta polimorfismul e folosit cum
+trebuie memoria e gestionata bine cu smart pointers recursivitatea e
+integrata cu sens si exceptiile sunt implementate corect.
+
